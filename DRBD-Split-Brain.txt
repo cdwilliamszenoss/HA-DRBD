@@ -1,0 +1,50 @@
+
+1. Verify that auto promote is set disabled
+
+2.  Use Unicast instead of Mulitcast for corosync (pcs) if there is a problem with split-brian. 
+    
+   totem {
+    version: 2
+    cluster_name: mycluster
+    secauth: off
+
+    interface {
+                ringnumber: 0
+                bindnetaddr: 45.62.xxx.0
+                mcastport: 5405
+                ttl: 1
+        }
+    interface {
+                ringnumber: 0
+                bindnetaddr: 64.137.xxx.0
+                mcastport: 5405
+                ttl: 1
+        }
+
+
+    transport: udpu
+}
+
+
+    
+3. Important. Set role on each node
+drbdadm primary dfs-resource --force
+drbdadm secondary dfs-resource
+
+4. Stop drbd services on both nodes
+
+5. Bring down resource on both nodes 'drbdadm down dfs-resource'
+
+6. Recreate the resources on the backup node 'drbdadm create-md dfs-resource'
+
+7. Bring up resource on both nodes
+
+8. Set role on each node
+ primary   'drbdadm primary dfs-resource --force'
+ secondary 'drbdadm seconday dfs-resource'
+
+9. Check resource status
+ drbdsetup status --verbose --statistics 
+
+10. Connect resource
+drbdadm connect dfs-resource
