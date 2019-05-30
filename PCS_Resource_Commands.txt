@@ -1,0 +1,41 @@
+
+- Disable service from starting up on cluster start
+  pcs resource disable <resource>
+
+- Enable service to start up on cluster start
+  pcs resource enable <resource>
+
+- Clear all failed action all nodes
+  pcs resource refresh --full
+
+- Single resource
+  pcs resource cleanup resource_id
+
+- Disable pacemaker management of a resource
+  pcs resource unmanage resource1  [resource2]
+
+- Allow pacemaker to manage resource
+  pcs resource manage resource1  [resource2]
+
+------------------------------------------
+# Resources
+- Show all configured resources 
+  pcs resource show --full
+
+- List all resources
+  pcs resource list
+
+- List resources associated with the lbs standard
+  pcs resource list lsb
+
+- Help information on configuring the drbd agent
+  pcs resource describe ocf:linbit:drbd
+
+- how resource supported standards
+  pcs resource standards
+
+- Show available OCF providers.
+  pcs resource providers
+
+- Show all agents
+  pcs resource agents
