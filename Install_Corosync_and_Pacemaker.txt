@@ -1,4 +1,11 @@
 
+ 
+# Reset Cluster
+pcs cluster destory --all
+
+
+# Generate SSH Key and copy to both servers
+
 ssh-keygen -t dsa -f ~/.ssh/id_dsa -N ""
 cat  ~/.ssh/id_dsa.pub >>  ~/.ssh/authorized_keys
 scp -r ~./ssh zenossccs:
@@ -10,8 +17,33 @@ sed -i.bak "s/SELINUX=enforcing/SELINUX=permissive/g" /etc/selinux/config
 setenforce 1
 sed -i.bak "s/SELINUX=permissive/SELINUX=enforcing/g" /etc/selinux/config
 
-# Reset Cluster
-pcs cluster destory --all
+------------------------------------------------------
+
+
+# Install short version
+
+[node1,node2] yum install -y pacemaker pcs psmisc policycoreutils-python ntp corosync
+
+[node1,node2] systemctl start pcsd; systemctl enable pcsd
+
+[node1,node2] passwd hacluster
+
+[node] pcs cluster auth node1.domain.com node2.domain.com
+
+pcs cluster setup --name hacluster node1.domain.com node2.domain.com
+
+pcs cluster start --all
+
+pcs status
+
+# Enable cluster for boot time
+pcs cluster enable --all
+
+https://nodename:2224
+
+------------------------------------------------------
+
+# Install long version
 
 [node1,node2]
     yum install -y pacemaker pcs psmisc policycoreutils-python
