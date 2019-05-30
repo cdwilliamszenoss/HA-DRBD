@@ -1,0 +1,19 @@
+ yum install -y install kmod-drbd90 drbd90-utils
+
+ yum install fence-agents-all fence-virt
+
+ semanage permissive -a drbd_t
+
+
+# Run on zenossccs:
+
+ firewall-cmd --permanent --add-rich-rule='rule family="ipv4"  source address=64.137.161.226 port port="7789" protocol="tcp" accept'
+
+ firewall-cmd --reload
+
+
+# Run on zenossccm:
+
+ firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address=45.62.226.141 port port="7789" protocol="tcp" accept'
+
+ firewall-cmd --reload
