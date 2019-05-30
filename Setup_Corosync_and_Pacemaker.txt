@@ -1,0 +1,64 @@
+
+ssh-keygen -t dsa -f ~/.ssh/id_dsa -N ""
+cat  ~/.ssh/id_dsa.pub >>  ~/.ssh/authorized_keys
+scp -r ~./ssh zenossccs:
+
+setenforce 0
+sed -i.bak "s/SELINUX=enforcing/SELINUX=permissive/g" /etc/selinux/config
+
+# Unset
+setenforce 1
+sed -i.bak "s/SELINUX=permissive/SELINUX=enforcing/g" /etc/selinux/config
+
+# Reset Cluster
+pcs cluster destory --all
+
+[node1,node2]
+    yum install -y pacemaker pcs psmisc policycoreutils-python
+
+    systemctl start pcsd.service
+
+    systemctl enable pcsd.service
+
+    passwd hacluster
+
+[node1]
+     pcs cluster auth zenossccs zenossccm
+
+     pcs cluster setup --name mycluster zenossccs zenossccm
+
+     pcs status help
+
+     pcs cluster start --all
+
+# Services will start automatically on all nodes (skip)
+[node1,node2] start on each node
+     systemctl start corosync.service
+     systemctl start pacemaker.service
+
+[node1]
+     # Check status
+     corosync-cfgtool -s
+
+     # Check members
+     corosync-cmapctl | grep members
+
+     pcs status corosync
+
+     # Verify Pacemaker Installation
+      pcs status
+
+      crm_verify -L -V
+
+     # Set stonith-enabled false until resource are enabled
+      pcs property set stonith-enabled=false
+
+      crm_verify -L -V
+
+     # Add a Resource
+     The chosen address must not already be in use on the network. Do not reuse an IP address one of the nodes already has configured.
+     pcs resource create ClusterIP ocf:heartbeat:IPaddr2 \
+        ip=45.62.232.244 cidr_netmask=32 op monitor interval=30s
+
+    # Chapter 5. Create an Active/Passive Cluster
+    http://clusterlabs.org/pacemaker/doc/en-US/Pacemaker/1.1/html/Clusters_from_Scratch/_add_a_resource.html
