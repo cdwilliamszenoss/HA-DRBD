@@ -1,0 +1,48 @@
+
+1. Verify that auto promote is set disabled
+   Use Unicast instead of Mulitcast for corosync if nodes are not in sync.
+
+2. Important.
+   Set role on each node:
+   drbdadm primary dfs-resource --force
+   drbdadm secondary dfs-resource
+
+3. Stop drbd services on both nodes
+
+4. Bring down resource on both nodes 'drbdadm down dfs-resource'
+
+5. Recreate the resources on the backup node 'drbdadm create-md dfs-resource'
+
+6. Bring up resource on both nodes. Set primary first.
+   Primary:
+   drbdadm primary dfs-resource --force
+
+   Secondary:
+   drbdadm seconday dfs-resource
+
+7. Check to see if services are connected
+   drbdadm status
+
+8. Connect resource
+   drbdadm connect dfs-resource
+
+****************************************************************************************
+
+# Ban Secondary server from hosting resources until build is complete
+
+pcs resource show --all
+
+# Ban resource from being hosted on server
+pcs resource ban WebSite zenossccs
+
+# Show all banned Resources
+pcs constraint
+
+# Clear the ban on a resource
+pcs resource clear WebSite zenossccs
+
+# Clear all failed action all nodes
+pcs resource refresh --full
+
+# Clear the failed action on a single resource
+pcs resource cleanup resource_id
